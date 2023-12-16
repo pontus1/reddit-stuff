@@ -1,5 +1,25 @@
+"use client"
+
+import { useGetPostsBySubjectQuery } from "@/store/slice/api"
+import { useEffect } from "react"
+
 export default function Home() {
+  const { data, error, isLoading } = useGetPostsBySubjectQuery("")
+
+  useEffect(() => {
+    if (data) {
+      console.log(data)
+    }
+  }, [data])
+
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24"></main>
+    <div className="flex min-h-screen flex-col">
+      <main className="flex flex-1 flex-col items-center justify-between p-24">
+        {isLoading && <h1>Loading...</h1>}
+        {error && <h1>Error</h1>}
+        {!isLoading && !error && <h1>Success!</h1>}
+      </main>
+      <footer className="p-4 bg-gray-200 text-center">Footer</footer>
+    </div>
   )
 }

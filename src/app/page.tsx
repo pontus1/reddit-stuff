@@ -13,6 +13,18 @@ import {
   Typography,
 } from "@material-tailwind/react"
 import { useEffect, useState } from "react"
+import { format, fromUnixTime } from "date-fns"
+import Image from "next/image"
+
+export const decodeHtml = (html: string) => {
+  const textArea = document.createElement("textarea")
+  textArea.innerHTML = html
+  return textArea.value
+}
+
+export const isValidImageUrl = (url: string) => {
+  return url.startsWith("http")
+}
 
 export default function Home() {
   const [pagination, setPagination] = useState<
@@ -20,6 +32,7 @@ export default function Home() {
       count: number
     } & BeforeOrAfter
   >({ before: null, after: null, count: 0 })
+  const [expandedPostId, setExpandedPostId] = useState<string | null>(null)
 
   const { data, error, isLoading, isFetching } = useGetPostsBySubjectQuery(
     {
@@ -27,6 +40,14 @@ export default function Home() {
     },
     { refetchOnMountOrArgChange: true }
   )
+
+  const toggleExpandPost = (postId: string) => {
+    if (expandedPostId === postId) {
+      setExpandedPostId(null)
+    } else {
+      setExpandedPostId(postId)
+    }
+  }
 
   const handleClickPrev = () => {
     if (data?.before) {
@@ -58,6 +79,9 @@ export default function Home() {
     }
   }, [data])
 
+  const prevDisabled = !data?.before || isFetching
+  const nextDisabled = !data?.after || isFetching
+
   return (
     <div className="flex min-h-screen flex-col">
       <main className="flex flex-1 flex-col items-center justify-between p-24">
@@ -68,9 +92,64 @@ export default function Home() {
             {data.posts.map((post) => (
               <Card key={post.id} className="mb-10">
                 <CardBody>
+                  {isValidImageUrl(post.thumbnail) && (
+                    <Image
+                      src={post.thumbnail}
+                      alt={post.title}
+                      width={post.thumbnail_width / 2}
+                      height={post.thumbnail_height / 2}
+                      className="mb-6 rounded-md"
+                    />
+                  )}
                   <Typography variant="h5" className="mb-2">
                     {post.title}
                   </Typography>
+                  <Typography>
+                    Posted by {post.author} |{" "}
+                    {format(fromUnixTime(post.created), "PPpp")}
+                  </Typography>
+                  <Typography>
+                    {post.num_comments} Comments | Score: {post.score}
+                  </Typography>
+                  <div className="mt-5 flex justify-between">
+                    {post.selftext_html && expandedPostId !== post.id ? (
+                      <Button
+                        color="gray"
+                        onClick={() => toggleExpandPost(post.id)}
+                      >
+                        More
+                      </Button>
+                    ) : (
+                      <div />
+                    )}
+                    <div>
+                      <a
+                        href={post.permalink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <Button>View on Reddit</Button>
+                      </a>
+                    </div>
+                  </div>
+                  <div>
+                    {post.selftext_html && expandedPostId === post.id && (
+                      <div className="mt-5">
+                        <div
+                          dangerouslySetInnerHTML={{
+                            __html: decodeHtml(post.selftext_html),
+                          }}
+                        />
+                        <Button
+                          className="mt-6"
+                          color="gray"
+                          onClick={() => toggleExpandPost(post.id)}
+                        >
+                          Less
+                        </Button>
+                      </div>
+                    )}
+                  </div>
                 </CardBody>
               </Card>
             ))}
@@ -79,10 +158,10 @@ export default function Home() {
       </main>
       <footer className="p-4 bg-gray-200 text-center flex justify-center">
         <ButtonGroup>
-          <Button onClick={handleClickPrev} disabled={!data?.before}>
+          <Button onClick={handleClickPrev} disabled={prevDisabled}>
             Previous
           </Button>
-          <Button onClick={handleClickNext} disabled={!data?.after}>
+          <Button onClick={handleClickNext} disabled={nextDisabled}>
             Next
           </Button>
         </ButtonGroup>

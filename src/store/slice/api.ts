@@ -75,6 +75,7 @@ export const redditApi = createApi({
         const lastPostName = posts.slice(-1)[0]?.data?.name ?? null
 
         // TODO: handle errors
+        // TODO: cache responses until res.data.before is null (first page)
         const transformedPosts = posts.map(({ data }) => ({
           id: data.id,
           name: data.name,
@@ -90,8 +91,6 @@ export const redditApi = createApi({
           selftext: data.selftext,
           selftext_html: data.selftext_html,
         }))
-
-        console.log("BEFORE: ", res.data.before)
 
         return {
           posts: transformedPosts,

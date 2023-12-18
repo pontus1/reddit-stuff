@@ -11,6 +11,7 @@ import {
   Card,
   CardBody,
   Typography,
+  Spinner,
 } from "@material-tailwind/react"
 import { useEffect, useState } from "react"
 import { format, fromUnixTime } from "date-fns"
@@ -26,12 +27,13 @@ export const isValidImageUrl = (url: string) => {
   return url.startsWith("http")
 }
 
+type PaginationState = { count: number } & BeforeOrAfter
+const initialPaginationState = { before: null, after: null, count: 0 }
+
 export default function Home() {
-  const [pagination, setPagination] = useState<
-    {
-      count: number
-    } & BeforeOrAfter
-  >({ before: null, after: null, count: 0 })
+  const [pagination, setPagination] = useState<PaginationState>(
+    initialPaginationState
+  )
   const [expandedPostId, setExpandedPostId] = useState<string | null>(null)
 
   const { data, error, isLoading, isFetching } = useGetPostsBySubjectQuery(
@@ -73,25 +75,32 @@ export default function Home() {
     }
   }
 
-  useEffect(() => {
-    if (data) {
-      console.log(data)
-    }
-  }, [data])
+  const reload = () => {
+    setPagination(initialPaginationState)
+  }
 
   const prevDisabled = !data?.before || isFetching
   const nextDisabled = !data?.after || isFetching
+  const pending = isLoading || isFetching
 
   return (
     <div className="flex flex-col min-h-screen">
+      {/* TODO: extract as header */}
       <header className="bg-gray-200 p-6 text-center sticky top-0 z-10">
         <Typography variant="h3" color="gray" className="font-bold">
           Reddit Stuff
         </Typography>
       </header>
       <main className="flex flex-1 flex-col items-center justify-between p-24">
-        {isLoading && <h1>Loading...</h1>}
-        {error && <h1>Error</h1>}
+        {isLoading && (
+          <Spinner className="h-12 w-12" data-testid="home-spinner" />
+        )}
+        {error && (
+          <>
+            <Typography variant="h4">Ooops, something went wrong...</Typography>
+            <Button onClick={reload}>Reload</Button>
+          </>
+        )}
         {data && !isLoading && !error && (
           <div>
             {data.posts.map((post) => (
@@ -163,25 +172,20 @@ export default function Home() {
           </div>
         )}
       </main>
-      {/* <footer className="p-4 bg-gray-200 text-center flex justify-center">
-        <ButtonGroup>
-          <Button onClick={handleClickPrev} disabled={prevDisabled}>
-            Previous
-          </Button>
-          <Button onClick={handleClickNext} disabled={nextDisabled}>
-            Next
-          </Button>
-        </ButtonGroup>
-      </footer> */}
+      {/* TODO: extract as Footer */}
       <footer className="bg-gray-200 p-4 flex justify-center sticky bottom-0 z-10">
-        <ButtonGroup>
-          <Button onClick={handleClickPrev} disabled={prevDisabled}>
-            Previous
-          </Button>
-          <Button onClick={handleClickNext} disabled={nextDisabled}>
-            Next
-          </Button>
-        </ButtonGroup>
+        {isFetching || isLoading ? (
+          <Spinner className="h-10 w-10" />
+        ) : (
+          <ButtonGroup>
+            <Button onClick={handleClickPrev} disabled={prevDisabled}>
+              Prev
+            </Button>
+            <Button onClick={handleClickNext} disabled={nextDisabled}>
+              Next
+            </Button>
+          </ButtonGroup>
+        )}
       </footer>
     </div>
   )

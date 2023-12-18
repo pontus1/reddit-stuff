@@ -83,7 +83,12 @@ export default function Home() {
   const nextDisabled = !data?.after || isFetching
 
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex flex-col min-h-screen">
+      <header className="bg-gray-200 p-6 text-center sticky top-0 z-10">
+        <Typography variant="h3" color="gray" className="font-bold">
+          Reddit Stuff
+        </Typography>
+      </header>
       <main className="flex flex-1 flex-col items-center justify-between p-24">
         {isLoading && <h1>Loading...</h1>}
         {error && <h1>Error</h1>}
@@ -101,7 +106,7 @@ export default function Home() {
                       className="mb-6 rounded-md"
                     />
                   )}
-                  <Typography variant="h5" className="mb-2">
+                  <Typography variant="h5" className="mb-2" color="teal">
                     {post.title}
                   </Typography>
                   <Typography>
@@ -114,7 +119,7 @@ export default function Home() {
                   <div className="mt-5 flex justify-between">
                     {post.selftext_html && expandedPostId !== post.id ? (
                       <Button
-                        color="gray"
+                        color="teal"
                         onClick={() => toggleExpandPost(post.id)}
                       >
                         More
@@ -128,7 +133,9 @@ export default function Home() {
                         target="_blank"
                         rel="noopener noreferrer"
                       >
-                        <Button>View on Reddit</Button>
+                        <Button variant="outlined" color="teal">
+                          View on Reddit
+                        </Button>
                       </a>
                     </div>
                   </div>
@@ -142,7 +149,7 @@ export default function Home() {
                         />
                         <Button
                           className="mt-6"
-                          color="gray"
+                          color="teal"
                           onClick={() => toggleExpandPost(post.id)}
                         >
                           Less
@@ -156,7 +163,17 @@ export default function Home() {
           </div>
         )}
       </main>
-      <footer className="p-4 bg-gray-200 text-center flex justify-center">
+      {/* <footer className="p-4 bg-gray-200 text-center flex justify-center">
+        <ButtonGroup>
+          <Button onClick={handleClickPrev} disabled={prevDisabled}>
+            Previous
+          </Button>
+          <Button onClick={handleClickNext} disabled={nextDisabled}>
+            Next
+          </Button>
+        </ButtonGroup>
+      </footer> */}
+      <footer className="bg-gray-200 p-4 flex justify-center sticky bottom-0 z-10">
         <ButtonGroup>
           <Button onClick={handleClickPrev} disabled={prevDisabled}>
             Previous

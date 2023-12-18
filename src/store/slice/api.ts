@@ -2,12 +2,13 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react"
 
 const BASE_URL = "https://api.reddit.com"
 export const PAGINATION_LIMIT = 10
+
+// TODO: Add more subjects and ability to select
 enum Subject {
   JAVASCRIPT = "javascript",
 }
 
 // TODO: Move to types
-
 export type BeforeOrAfter =
   | { before: string; after: null }
   | { before: null; after: string }
@@ -17,7 +18,7 @@ type PostsQueryArgs = {
   count: number
 } & BeforeOrAfter
 
-type Post = {
+export type Post = {
   id: string
   name: string
   created: number

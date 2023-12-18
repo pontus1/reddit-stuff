@@ -16,6 +16,8 @@ import {
 import { useEffect, useState } from "react"
 import { format, fromUnixTime } from "date-fns"
 import Image from "next/image"
+import { Header } from "./components/Header"
+import { Footer } from "./components/Footer"
 
 export const decodeHtml = (html: string) => {
   const textArea = document.createElement("textarea")
@@ -85,12 +87,7 @@ export default function Home() {
 
   return (
     <div className="flex flex-col min-h-screen">
-      {/* TODO: extract as header */}
-      <header className="bg-gray-200 p-6 text-center sticky top-0 z-10">
-        <Typography variant="h3" color="gray" className="font-bold">
-          Reddit Stuff
-        </Typography>
-      </header>
+      <Header title="Reddit stuff" />
       <main className="flex flex-1 flex-col items-center justify-between p-24">
         {isLoading && (
           <Spinner className="h-12 w-12" data-testid="home-spinner" />
@@ -172,21 +169,13 @@ export default function Home() {
           </div>
         )}
       </main>
-      {/* TODO: extract as Footer */}
-      <footer className="bg-gray-200 p-4 flex justify-center sticky bottom-0 z-10">
-        {isFetching || isLoading ? (
-          <Spinner className="h-10 w-10" />
-        ) : (
-          <ButtonGroup>
-            <Button onClick={handleClickPrev} disabled={prevDisabled}>
-              Prev
-            </Button>
-            <Button onClick={handleClickNext} disabled={nextDisabled}>
-              Next
-            </Button>
-          </ButtonGroup>
-        )}
-      </footer>
+      <Footer
+        isLoading={isLoading || isFetching}
+        onPrev={handleClickPrev}
+        onNext={handleClickNext}
+        prevDisabled={prevDisabled}
+        nextDisabled={nextDisabled}
+      />
     </div>
   )
 }
